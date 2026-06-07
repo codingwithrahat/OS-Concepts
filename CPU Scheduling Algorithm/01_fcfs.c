@@ -68,7 +68,7 @@ int main(){
         total_response_time += p[i].response_time;
     }
 
-    printf("\nPID\tAT\tBT\tCT\tTAT\tWt\tRT\n");
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\tRT\n");
 
     for(int i = 0; i<n; i++){
         printf("p%d\t%d\t%d\t%d\t%d\t%d\t%d\n",

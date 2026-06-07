@@ -9,13 +9,14 @@ struct Process {
 	int burst_time;
 	int priority;
 
-    int remaining_time;
 	int completion_time;
 	int turnaround_time;
 	int waiting_time;
 	int response_time;
 
-	bool started;
+	int start_time;
+
+	bool completed;
 };
 
 int main(){
@@ -29,12 +30,10 @@ int main(){
 
 	for(int i = 0; i<n; i++){
 		p[i].pid = i + 1;
-        p[i].started = false;
+        p[i].completed = false;
 
 		printf("Enter arrival_time, burst_time and priority for pid %d : ", i + 1);
         scanf("%d %d %d", &p[i].arrival_time, &p[i].burst_time, &p[i].priority);
-
-        p[i].remaining_time = p[i].burst_time;
 	}
 
 	int current_time = 0;
@@ -51,7 +50,7 @@ int main(){
 
 
 		for(int i = 0; i<n; i++){
-			if(p[i].arrival_time <= current_time && p[i].remaining_time > 0){
+			if(p[i].arrival_time <= current_time && !p[i].completed){
 				if(p[i].priority < highest_priority){
 					highest_priority = p[i].priority;
 					selected = i;
@@ -70,32 +69,25 @@ int main(){
 		if(selected == -1){
 			current_time++;
 		}else{
+			p[selected].start_time = current_time;
+			p[selected].completion_time = current_time + p[selected].burst_time;
+			p[selected].turnaround_time = p[selected].completion_time - p[selected].arrival_time;
+			p[selected].waiting_time = p[selected].turnaround_time - p[selected].burst_time;
+			p[selected].response_time = p[selected].start_time - p[selected].arrival_time;
 
-            if(p[selected].started == false){
-                p[selected].response_time = current_time - p[selected].arrival_time;
+			p[selected].completed = true;
+			complete_cnt++;
 
-                p[selected].started = true;
-            }
+			current_time = p[selected].completion_time;
 
-            p[selected].remaining_time--;
-            current_time++;
-            
-            if(p[selected].remaining_time == 0){
-                p[selected].completion_time = current_time;
-			    p[selected].turnaround_time = p[selected].completion_time - p[selected].arrival_time;
-			    p[selected].waiting_time = p[selected].turnaround_time - p[selected].burst_time;
 
-			    complete_cnt++;
-
-			    total_turnaround_time += p[selected].turnaround_time;
-			    total_waiting_time += p[selected].waiting_time;
-			    total_response_time += p[selected].response_time;
-            }
-
+			total_turnaround_time += p[selected].turnaround_time;
+			total_waiting_time += p[selected].waiting_time;
+			total_response_time += p[selected].response_time;
 		}
 	}
-
-    printf("\nPID\tAT\tBT\tCT\tTAT\tWt\tRT\n");
+    
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\tRT\n");
 
     for(int i = 0; i<n; i++){
         printf("p%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
